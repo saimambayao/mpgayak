@@ -82,7 +82,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     netcat-openbsd \
-    su-exec \
+    gosu \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -223,14 +223,14 @@ echo "✅ Media permissions fixed"
 
 # Start gunicorn as appuser with Railway-optimized settings
 # Use PORT env var provided by Railway (defaults to 8000)
-exec su-exec appuser gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class sync --max-requests 1000 --max-requests-jitter 50 --timeout 30 --keep-alive 5 config.wsgi:application
+exec gosu appuser gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class sync --max-requests 1000 --max-requests-jitter 50 --timeout 30 --keep-alive 5 config.wsgi:application
 EOF
 
 # Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
 
 # NOTE: We stay as root to fix Railway volume permissions in entrypoint
-# The entrypoint will drop to appuser before starting gunicorn using su-exec
+# The entrypoint will drop to appuser before starting gunicorn using gosu
 
 # Expose port (Railway will override this)
 EXPOSE 8000
