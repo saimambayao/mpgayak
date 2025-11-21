@@ -8,7 +8,8 @@ dockerfile = "deployment/docker/Dockerfile.railway"
 
 [deploy]
 # Start command runs the entrypoint script which handles migrations and startup
-startCommand = "sh /app/entrypoint.sh"
+# Fix media directory permissions before starting (Railway volume issue)
+startCommand = "chown -R 1000:1000 /app/media && chmod -R 775 /app/media && sh /app/entrypoint.sh"
 
 # Restart policy for failed containers
 restartPolicy = "on_failure"
